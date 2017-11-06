@@ -1,0 +1,92 @@
+From b4622494613cf5ad1d8ffa71ea50fe915e2f35a4 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Fri, 17 Nov 2017 20:25:54 +0100
+Subject: [PATCH 7/7] iot2000-hack: pwm: pca-9685: Provide chip-level
+ pwm_period attribute
+
+Arduino runtime relies on this path to program the PWM period, rather
+than doing this via the upstream kernel API which is per channel.
+
+Another one not for upstream.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/pwm/pwm-pca9685.c | 46 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
+
+diff --git a/drivers/pwm/pwm-pca9685.c b/drivers/pwm/pwm-pca9685.c
+index 611b9263a896..fafbacb3a976 100644
+--- a/drivers/pwm/pwm-pca9685.c
++++ b/drivers/pwm/pwm-pca9685.c
+@@ -444,6 +444,41 @@ static const struct pwm_ops pca9685_pwm_ops = {
+ 	.owner = THIS_MODULE,
+ };
+ 
++static ssize_t pwm_period_show(struct device *parent,
++			       struct device_attribute *attr,
++			       char *buf)
++{
++	struct pwm_chip *chip = dev_get_drvdata(parent);
++	struct pwm_device *pwm = &chip->pwms[PCA9685_MAXCHAN];
++
++	return sprintf(buf, "%u\n", pwm_get_period(pwm));
++}
++
++static ssize_t pwm_period_store(struct device *parent,
++				struct device_attribute *attr,
++				const char *buf, size_t size)
++{
++	struct pwm_chip *chip = dev_get_drvdata(parent);
++	unsigned int val, channel;
++	struct pwm_device *pwm;
++	int ret;
++
++	ret = kstrtouint(buf, 0, &val);
++	if (ret)
++		return ret;
++
++	for (channel = 0; channel <= PCA9685_MAXCHAN; channel++) {
++		pwm = &chip->pwms[channel];
++		ret = pwm_config(pwm, pwm_get_duty_cycle(pwm), val);
++		if (ret)
++			return ret;
++	}
++
++	return size;
++}
++
++static DEVICE_ATTR_RW(pwm_period);
++
+ static const struct regmap_config pca9685_regmap_i2c_config = {
+ 	.reg_bits = 8,
+ 	.val_bits = 8,
+@@ -504,8 +539,17 @@ static int pca9685_pwm_probe(struct i2c_client *client,
+ 	if (ret < 0)
+ 		return ret;
+ 
++	ret = sysfs_create_file(&pca->chip.dev->kobj,
++				&dev_attr_pwm_period.attr);
++	if (ret < 0) {
++		pwmchip_remove(&pca->chip);
++		return ret;
++	}
++
+ 	ret = pca9685_pwm_gpio_probe(pca);
+ 	if (ret < 0) {
++		sysfs_remove_file(&pca->chip.dev->kobj,
++				  &dev_attr_pwm_period.attr);
+ 		pwmchip_remove(&pca->chip);
+ 		return ret;
+ 	}
+@@ -526,6 +570,8 @@ static int pca9685_pwm_remove(struct i2c_client *client)
+ 	struct pca9685 *pca = i2c_get_clientdata(client);
+ 	int ret;
+ 
++	sysfs_remove_file(&pca->chip.dev->kobj, &dev_attr_pwm_period.attr);
++
+ 	ret = pwmchip_remove(&pca->chip);
+ 	if (ret)
+ 		return ret;
+-- 
+2.12.3
+
