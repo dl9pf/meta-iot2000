@@ -10,7 +10,7 @@ repos:
 
   poky:
     url: https://git.yoctoproject.org/git/poky
-    refspec: 7d5822bf4cb2089687c3c9a908cf4a4ef4e9a53a
+    refspec: 65d23bd7986615fdfb0f1717b615534a2a14ab80
     layers:
       meta:
       meta-poky:
@@ -18,11 +18,11 @@ repos:
 
   meta-intel:
     url: https://git.yoctoproject.org/git/meta-intel
-    refspec: 6add41510412ca196efb3e4f949d403a8b6f35d7
+    refspec: d68dda959b5bf6f90aa8e5c2f027be324bb68e14
 
   meta-openembedded:
     url: http://git.openembedded.org/meta-openembedded
-    refspec: fe5c83312de11e80b85680ef237f8acb04b4b26e
+    refspec: 6e3fc5b8d904d06e3aa77e9ec9968ab37a798188
     layers:
       meta-oe:
 

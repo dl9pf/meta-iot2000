@@ -14,7 +14,7 @@ repos:
 
   meta-intel-iot-middleware:
     url: https://git.yoctoproject.org/git/meta-intel-iot-middleware
-    refspec: fc8eabfa4fb54802d3f97123b9d2954450175e33
+    refspec: d666a98c60e6968f75c0acb6410fa0dfd59ac211
 
   meta-nodejs:
     url: https://github.com/imyller/meta-nodejs
