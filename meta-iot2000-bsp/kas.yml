@@ -49,3 +49,11 @@ local_conf_header:
         ABORT,${DL_DIR},100M,1K \
         ABORT,${SSTATE_DIR},100M,1K \
         ABORT,/tmp,10M,1K"
+
+  image_features: |
+    EXTRA_IMAGE_FEATURES += "eclipse-debug debug-tweaks dbg-pkgs ssh-server-openssh"
+
+  extra_mirror_options: |
+    DL_DIR = "/home/student/.yocto/downloads/"
+    SSTATE_DIR = "/home/student/.yocto/sstate-cache/${MACHINE}/"
+    BB_GENERATE_MIRROR_TARBALLS = "1"
