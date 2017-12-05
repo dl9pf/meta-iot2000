@@ -10,7 +10,7 @@ repos:
 
   poky:
     url: https://git.yoctoproject.org/git/poky
-    refspec: 65d23bd7986615fdfb0f1717b615534a2a14ab80
+    refspec: f7b90ab3eaf832bd81f3efc1dab4dcf6863ac284
     layers:
       meta:
       meta-poky:
@@ -18,11 +18,11 @@ repos:
 
   meta-intel:
     url: https://git.yoctoproject.org/git/meta-intel
-    refspec: d68dda959b5bf6f90aa8e5c2f027be324bb68e14
+    refspec: 5adbf6df4fd89e7531ccccfb9cec7a5314d635f0
 
   meta-openembedded:
     url: http://git.openembedded.org/meta-openembedded
-    refspec: 6e3fc5b8d904d06e3aa77e9ec9968ab37a798188
+    refspec: e08670d4362b57373557fbe6b31cbffffa465acc
     layers:
       meta-oe:
 
@@ -49,3 +49,28 @@ local_conf_header:
         ABORT,${DL_DIR},100M,1K \
         ABORT,${SSTATE_DIR},100M,1K \
         ABORT,/tmp,10M,1K"
+
+  image_features: |
+    EXTRA_IMAGE_FEATURES += "eclipse-debug debug-tweaks dbg-pkgs ssh-server-openssh"
+
+  extra_mirror_options: |
+    # ADAPT THIS TO THE WORKSHOP NETWORK !!
+    MIRRORHOST = "builder"
+    PREMIRRORS =+ "\
+    git://.*/.* http://${MIRRORHOST}/downloads/ \n \
+    ftp://.*/.* http://${MIRRORHOST}/downloads/ \n \
+    http://.*/.* http://${MIRRORHOST}/downloads/ \n \
+    https://.*/.* http://${MIRRORHOST}/downloads/ \n \
+    "
+    BB_GENERATE_MIRROR_TARBALLS = "1"
+    SSTATE_MIRRORS += " \
+    file://.* http://${MIRRORHOST}/sstate-mirror/${MACHINE}/PATH  \n \
+    "
+    DL_DIR = "/home/student/.yocto/downloads/"
+    SSTATE_DIR = "/home/student/.yocto/sstate-cache/${MACHINE}/"
+    INHERIT += "rm_work"
+    BB_FETCH_PREMIRRORONLY = "1"
+    BB_NO_NETWORK = "1"
+    SSTATE_MIRROR_ALLOW_NETWORK = "1"
+
+
