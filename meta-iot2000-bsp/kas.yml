@@ -49,3 +49,26 @@ local_conf_header:
         ABORT,${DL_DIR},100M,1K \
         ABORT,${SSTATE_DIR},100M,1K \
         ABORT,/tmp,10M,1K"
+
+  image_features: |
+    EXTRA_IMAGE_FEATURES += "eclipse-debug debug-tweaks dbg-pkgs ssh-server-openssh"
+
+  extra_mirror_options: |
+    # ADAPT THIS TO THE WORKSHOP NETWORK !!
+    MIRRORHOST = "builder"
+    PREMIRRORS =+ "\
+    git://.*/.* http://${MIRRORHOST}/downloads/ \n \
+    ftp://.*/.* http://${MIRRORHOST}/downloads/ \n \
+    http://.*/.* http://${MIRRORHOST}/downloads/ \n \
+    https://.*/.* http://${MIRRORHOST}/downloads/ \n \
+    "
+    BB_GENERATE_MIRROR_TARBALLS = "1"
+    SSTATE_MIRRORS += " \
+    file://.* http://${MIRRORHOST}/sstate-mirror/${MACHINE}/PATH  \n \
+    "
+    DL_DIR = "/home/student/.yocto/downloads/"
+    SSTATE_DIR = "/home/student/.yocto/sstate-cache/${MACHINE}/"
+    INHERIT += "rm_work"
+    BB_FETCH_PREMIRRORONLY = "1"
+    BB_NO_NETWORK = "1"
+    SSTATE_MIRROR_ALLOW_NETWORK = "1"
